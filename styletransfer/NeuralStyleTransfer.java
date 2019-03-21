@@ -98,8 +98,7 @@ public class NeuralStyleTransfer extends Application{
     private static final double NOISE_RATION = 0.1;
     private static final int ITERATIONS = 1000;
 
-    private static final String CONTENT_FILE = "/styletransfer/image0.png";
-    private static final String STYLE_FILE = "/styletransfer/style2.jpg";
+    private static final String STYLE_FILE = "/styletransfer/style.jpg";
     private static final int SAVE_IMAGE_CHECKPOINT = 5;
     private static final String OUTPUT_PATH = "D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\styletransfer";
 
@@ -118,8 +117,10 @@ public class NeuralStyleTransfer extends Application{
         webcam.open();
 
         final BufferedImage image = webcam.getImage();
+        ImageIO.write(image, "JPG", new File("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\styletransfer\\imageTEST.png"));
         webcam.close();
 
+        //Creating the Style Transfer with the image
         new NeuralStyleTransfer().transferStyle(image);
 
     }
@@ -129,12 +130,12 @@ public class NeuralStyleTransfer extends Application{
         launch(args);
     }
 
-    private void transferStyle(final BufferedImage image) throws IOException {
+    private void transferStyle( BufferedImage image) throws IOException {
 
         ComputationGraph vgg16FineTune = loadModel();
-        INDArray content = loadImage(CONTENT_FILE);
-        INDArray style = loadImage(STYLE_FILE);
-        INDArray combination = createCombinationImage();
+        INDArray content = loadImageDirect(image);
+        INDArray style = loadImagePath(STYLE_FILE);
+        INDArray combination = createCombinationImage(image);
         Map<String, INDArray> activationsContentMap = vgg16FineTune.feedForward(content, true);
         Map<String, INDArray> activationsStyleMap = vgg16FineTune.feedForward(style, true);
         HashMap<String, INDArray> activationsStyleGramMap = buildStyleGramValues(activationsStyleMap);
@@ -190,8 +191,8 @@ public class NeuralStyleTransfer extends Application{
         return adamUpdater;
     }
 
-    private INDArray createCombinationImage() throws IOException {
-        INDArray content = LOADER.asMatrix(new ClassPathResource(CONTENT_FILE).getFile());
+    private INDArray createCombinationImage(BufferedImage content_img) throws IOException {
+        INDArray content = LOADER.asMatrix(content_img);
         IMAGE_PRE_PROCESSOR.transform(content);
         INDArray combination = createCombineImageWithRandomPixels();
         combination.muli(NOISE_RATION).addi(content.muli(1 - NOISE_RATION));
@@ -207,7 +208,13 @@ public class NeuralStyleTransfer extends Application{
         return Nd4j.create(result, new int[]{1, CHANNELS, HEIGHT, WIDTH});
     }
 
-    private INDArray loadImage(String contentFile) throws IOException {
+    private INDArray loadImageDirect(BufferedImage content) throws IOException {
+        INDArray content_img = LOADER.asMatrix(content);
+        IMAGE_PRE_PROCESSOR.transform(content_img);
+        return content_img;
+    }
+
+    private INDArray loadImagePath(String contentFile) throws IOException {
         INDArray content = LOADER.asMatrix(new ClassPathResource(contentFile).getFile());
         IMAGE_PRE_PROCESSOR.transform(content);
         return content;
