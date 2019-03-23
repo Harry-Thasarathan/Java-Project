@@ -2,7 +2,13 @@ package org.deeplearning4j.examples.styletransfer;
 
 import com.github.sarxos.webcam.Webcam;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.datavec.api.util.ClassPathResource;
 import org.datavec.image.loader.NativeImageLoader;
@@ -33,8 +39,13 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
+//For the menu items
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 
 
 /**
@@ -107,21 +118,101 @@ public class NeuralStyleTransfer extends Application{
     private static final int CHANNELS = 3;
     private static final DataNormalization IMAGE_PRE_PROCESSOR = new VGG16ImagePreProcessor();
     private static final NativeImageLoader LOADER = new NativeImageLoader(HEIGHT, WIDTH, CHANNELS);
+    private BufferedImage image = null;
     @Override
     public void start(Stage primaryStage) throws  Exception{
+
+        //Creating a borderpane for making the layout
         BorderPane borderPane = new BorderPane();
+        FlowPane buttonPane = new FlowPane();
+
+        //Creating a button to capture a
+        Button btncapture = new Button("Capture!");
+        Button btnStyle = new Button("Style!");
+
+        //Adding Button to the button pane
+        buttonPane.getChildren().add(btncapture);
+        buttonPane.getChildren().add(btnStyle);
+
+        //Putting the buttonPane at the bottom of the border pane
+        borderPane.setBottom(buttonPane);
 
 
+        //Creating a menu Bar
+        MenuBar menuBar = new MenuBar();
 
-        Webcam webcam = Webcam.getDefault();
-        webcam.open();
+        //Creating a new menu
+        Menu file = new Menu("File");
 
-        final BufferedImage image = webcam.getImage();
-        ImageIO.write(image, "JPG", new File("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\styletransfer\\imageTEST.png"));
-        webcam.close();
+        //Items in teh Menu
+        MenuItem menuItemOpen = new MenuItem("Open");
+        MenuItem menuItemSave = new MenuItem("Save");
+        MenuItem menuItemExit = new MenuItem("Exit");
+
+        //adding the items to the menu
+        file.getItems().addAll(menuItemOpen, menuItemSave, menuItemExit);
+
+        //Adding file to the Menu Bar
+        menuBar.getMenus().add(file);
+
+        //Setting the menubar at the top of the screen
+        borderPane.setTop(menuBar);
+
+
+        /** ------- -For the buttons of the program ----------------- */
+        //Capture the image button function
+        btncapture.setOnAction(e->{
+            Webcam webcam = Webcam.getDefault();
+            webcam.open();
+
+            image = webcam.getImage();
+            try {
+                //TODO Make sure to fix this weird error and then making it look pretty -Tam
+                ImageIO.write(image, "JPG", new File("imageTEST.png"));
+            }
+            catch (IOException ex){
+                System.out.println("ERROR WITH TAKING A PICTURE!");
+            }
+            finally {
+                webcam.close();
+            }
+
+        });
+
 
         //Creating the Style Transfer with the image
-        new NeuralStyleTransfer().transferStyle(image);
+        btnStyle.setOnAction(e->{
+            try{
+                new NeuralStyleTransfer().transferStyle(image);
+            }
+            catch (IOException ex){
+                System.out.println("ERROR WITH STYLE TRANSFERING");
+            }
+
+        });
+
+
+        /** ------- -For the Menu of the program ----------------- */
+
+        menuItemOpen.setOnAction(e->{
+            FileChooser fileChooser = new FileChooser();
+            File selectedFile = fileChooser.showOpenDialog(primaryStage);
+            System.out.println(selectedFile.getPath());
+            ImageView imageView = new ImageView(selectedFile.getPath());
+            borderPane.setCenter(imageView);
+        });
+
+        menuItemExit.setOnAction(e->{
+            //Maybe change this to the beginning of the program
+            Platform.exit();
+        });
+
+
+
+        primaryStage.setTitle("StyleTransfer");
+        Scene scene = new Scene(borderPane, 600 , 400);
+        primaryStage.setScene(scene);
+        primaryStage.show();
 
     }
 
