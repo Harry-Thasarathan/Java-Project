@@ -45,7 +45,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 
 //For the menu items
@@ -163,12 +162,12 @@ public class NeuralStyleTransfer extends Application{
         Menu file = new Menu("File");
 
         //Items in teh Menu
+        MenuItem menuItemNew = new MenuItem("New");
         MenuItem menuItemOpen = new MenuItem("Open");
-        MenuItem menuItemSave = new MenuItem("Save");
         MenuItem menuItemExit = new MenuItem("Exit");
 
         //adding the items to the menu
-        file.getItems().addAll(menuItemOpen, menuItemSave, menuItemExit);
+        file.getItems().addAll(menuItemNew, menuItemOpen, menuItemExit);
 
         //Adding file to the Menu Bar
         menuBar.getMenus().add(file);
@@ -178,13 +177,14 @@ public class NeuralStyleTransfer extends Application{
 
         /**TEXTAREA CREATION SECTION*/
         textArea = new TextArea();
-        textArea.setDisable(true);
+        textArea.setEditable(false);
         textPane.add(new ScrollPane(textArea), 0, 0 );
-        textArea.setPrefRowCount(15);
+        textArea.setPrefRowCount(20);
         textArea.setPrefColumnCount(15);
         borderPane.setLeft(textArea);
 
         /** ------- -For the button capture of the program ----------------- */
+
         //Capture the image button function
         btncapture.setOnAction(e -> {
             //Allows user to continue to use the UI
@@ -215,6 +215,16 @@ public class NeuralStyleTransfer extends Application{
 
 
         /** ------- -For the Menu of the program ----------------- */
+        menuItemNew.setOnAction(e->{
+            image = null;
+            Image image1 = null;
+            ImageView imageView = new ImageView(image1);
+            borderPane.setCenter(imageView);
+            textArea.appendText("Started a new file");
+
+        });
+
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -225,7 +235,15 @@ public class NeuralStyleTransfer extends Application{
 
                         if (selectedFile != null) {
                             Image image1 = new Image(selectedFile.toURI().toString());
+
+                            //Appending it to text area
+                            textArea.appendText("Image take from : " + selectedFile.toURI().toString());
+                            textArea.setWrapText(true);
+
+
+                            //Outputting image
                             ImageView imageView = new ImageView(image1);
+                            System.out.println();
                             imageView.setFitWidth(400);
                             imageView.setFitHeight(400);
                             borderPane.setCenter(imageView);
@@ -269,6 +287,10 @@ public class NeuralStyleTransfer extends Application{
 
         primaryStage.setTitle("StyleTransfer");
         Scene scene = new Scene(borderPane, 1000 , 600);
+
+        //Adding a style sheet for program
+        scene.getStylesheets().add("NeuralStyleTransfer.css");
+
         primaryStage.setScene(scene);
         primaryStage.show();
 
