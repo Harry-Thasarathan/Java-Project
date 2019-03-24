@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -42,6 +44,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.Stage;
+
 import org.nd4j.linalg.io.ClassPathResource;
 
 /**
@@ -55,20 +58,15 @@ import org.nd4j.linalg.io.ClassPathResource;
 public class MnistClassifierUI extends Application {
 
   private static final String basePath = System.getProperty("java.io.tmpdir") + "/mnist";
-  private final int canvasWidth = 150;
-  private final int canvasHeight = 150;
-  private MultiLayerNetwork net; // trained model
+  private final int canvasWidth = 300;
+  private final int canvasHeight = 300;
+  private MultiLayerNetwork net; // trained modelprivate static DecimalFormat df2 = new DecimalFormat(".##");
   //private ComputationGraph graph;
 
   public MnistClassifierUI() throws Exception {
 
     String fullModel = new ClassPathResource("test_mnist_old.h5").getFile().getPath();
     net = KerasModelImport.importKerasSequentialModelAndWeights(fullModel,false);
-    //graph = KerasModelImport.importKerasModelAndWeights(fullModel,false);
-    //File model = new File(basePath + "/minist-model.zip");
-    //if (!model.exists())
-    //  throw new IOException("Can't find the model");
-    //net = ModelSerializer.restoreMultiLayerNetwork(model);
   }
 
   public static void main(String[] args) throws Exception {
@@ -80,6 +78,10 @@ public class MnistClassifierUI extends Application {
     Canvas canvas = new Canvas(canvasWidth, canvasHeight);
     GraphicsContext ctx = canvas.getGraphicsContext2D();
 
+    Button btback = new Button("back");
+    HBox but = new HBox(btback);
+    but.setAlignment(Pos.TOP_LEFT);
+
     ImageView imgView = new ImageView();
     imgView.setFitHeight(100);
     imgView.setFitWidth(100);
@@ -87,16 +89,30 @@ public class MnistClassifierUI extends Application {
     ctx.setLineCap(StrokeLineCap.SQUARE);
     Label lblResult = new Label();
 
+    Label lbl[] = {new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label()};
+    HBox preds = new HBox(19);
+    preds.getChildren().addAll(lbl[0], lbl[1], lbl[2], lbl[3], lbl[4], lbl[5], lbl[6], lbl[7], lbl[8], lbl[9]);
+    preds.setAlignment(Pos.CENTER);
+
+    Label num[] = {new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label()};
+    HBox nums = new HBox(25.5);
+    nums.setAlignment(Pos.CENTER);
+    nums.getChildren().addAll(num[0], num[1], num[2], num[3], num[4], num[5], num[6], num[7], num[8], num[9]);
+
     HBox hbBottom = new HBox(10, imgView, lblResult);
     hbBottom.setAlignment(Pos.CENTER);
-    VBox root = new VBox(5, canvas, hbBottom);
+    VBox root = new VBox(20,but, canvas, hbBottom, preds, nums);
     root.setAlignment(Pos.CENTER);
 
-    Scene scene = new Scene(root, 520, 300);
+    Scene scene = new Scene(root, 600, 600);
     stage.setScene(scene);
     stage.setTitle("Draw a digit and hit enter (right-click to clear)");
     stage.setResizable(false);
     stage.show();
+
+    btback.setOnMouseClicked(e -> {
+        System.out.println("go back son");
+    });
 
     canvas.setOnMousePressed(e -> {
       ctx.setStroke(Color.WHITE);
@@ -119,7 +135,7 @@ public class MnistClassifierUI extends Application {
         BufferedImage scaledImg = getScaledImage(canvas);
         imgView.setImage(SwingFXUtils.toFXImage(scaledImg, null));
         try {
-          predictImage(scaledImg, lblResult);
+          predictImage(scaledImg, lblResult, lbl, num);
         } catch (Exception e1) {
           e1.printStackTrace();
         }
@@ -145,14 +161,24 @@ public class MnistClassifierUI extends Application {
     return scaledImg;
   }
 
-  private void predictImage(BufferedImage img, Label lbl) throws IOException {
+  private void predictImage(BufferedImage img, Label lbl, Label[] preds, Label[] nums) throws IOException {
     NativeImageLoader loader = new NativeImageLoader(28, 28, 1, true);
     INDArray image = loader.asMatrix(img);
     ImagePreProcessingScaler scaler = new ImagePreProcessingScaler(0, 1);
     scaler.transform(image);
     INDArray output = net.output(image);
-    //int[] arr = INDArray.get(output);
-    lbl.setText("Prediction: " + net.output(image).argMax() + "\n " + output);
+    //double x = output.getDouble(1)*100;
+    lbl.setText("Prediction: " + net.output(image).argMax());
+
+    for (int i = 0; i <10; i++){
+        Double liklihood = output.getDouble(i)*100;
+        liklihood = (double)Math.round(liklihood*100)/100;
+        String likli = Double.toString(liklihood);
+        preds[i].setText(likli);
+
+        nums[i].setText(Double.toString(i));
+
+    }
   }
 
 }
