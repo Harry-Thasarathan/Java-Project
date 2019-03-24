@@ -3,11 +3,16 @@ package org.deeplearning4j.examples.styletransfer;
 import com.github.sarxos.webcam.Webcam;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.datavec.api.util.ClassPathResource;
@@ -18,6 +23,7 @@ import org.deeplearning4j.nn.workspace.LayerWorkspaceMgr;
 import org.deeplearning4j.zoo.PretrainedType;
 import org.deeplearning4j.zoo.ZooModel;
 import org.deeplearning4j.zoo.model.VGG16;
+import org.jfree.util.Log;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.api.preprocessor.DataNormalization;
 import org.nd4j.linalg.dataset.api.preprocessor.VGG16ImagePreProcessor;
@@ -46,6 +52,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
 
 
 /**
@@ -118,14 +125,20 @@ public class NeuralStyleTransfer extends Application{
     private static final int CHANNELS = 3;
     private static final DataNormalization IMAGE_PRE_PROCESSOR = new VGG16ImagePreProcessor();
     private static final NativeImageLoader LOADER = new NativeImageLoader(HEIGHT, WIDTH, CHANNELS);
+
     private BufferedImage image = null;
+    BorderPane borderPane = null;
+    TextArea textArea = null;
+
     @Override
     public void start(Stage primaryStage) throws  Exception{
 
         //Creating a borderpane for making the layout
-        BorderPane borderPane = new BorderPane();
+        borderPane = new BorderPane();
         FlowPane buttonPane = new FlowPane();
+        GridPane textPane = new GridPane();
 
+        /**BUTTON CREATION SECTION*/
         //Creating a button to capture a
         Button btncapture = new Button("Capture!");
         Button btnStyle = new Button("Style!");
@@ -134,10 +147,15 @@ public class NeuralStyleTransfer extends Application{
         buttonPane.getChildren().add(btncapture);
         buttonPane.getChildren().add(btnStyle);
 
+        //Adding padding to the buttonPane
+        buttonPane.setHgap(60);
+        buttonPane.setVgap(30);
+        buttonPane.translateXProperty().setValue(137.5);
+        buttonPane.setAlignment(Pos.CENTER);
+
         //Putting the buttonPane at the bottom of the border pane
         borderPane.setBottom(buttonPane);
-
-
+        /**MENU CREATION SECTION*/
         //Creating a menu Bar
         MenuBar menuBar = new MenuBar();
 
@@ -158,59 +176,99 @@ public class NeuralStyleTransfer extends Application{
         //Setting the menubar at the top of the screen
         borderPane.setTop(menuBar);
 
+        /**TEXTAREA CREATION SECTION*/
+        textArea = new TextArea();
+        textArea.setDisable(true);
+        textPane.add(new ScrollPane(textArea), 0, 0 );
+        textArea.setPrefRowCount(15);
+        textArea.setPrefColumnCount(15);
+        borderPane.setLeft(textArea);
 
-        /** ------- -For the buttons of the program ----------------- */
+        /** ------- -For the button capture of the program ----------------- */
         //Capture the image button function
-        btncapture.setOnAction(e->{
-            Webcam webcam = Webcam.getDefault();
-            webcam.open();
+        btncapture.setOnAction(e -> {
+            //Allows user to continue to use the UI
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    Webcam webcam = Webcam.getDefault();
+                    webcam.open();
+                    image = webcam.getImage();
+                    //Writing the image
+                    ImageIO.write(image, "JPG", new File("imageTEST.png"));
+                    webcam.close();
+                    return null;
+                }
 
-            image = webcam.getImage();
-            try {
-                //TODO Make sure to fix this weird error and then making it look pretty -Tam
-                ImageIO.write(image, "JPG", new File("imageTEST.png"));
-            }
-            catch (IOException ex){
-                System.out.println("ERROR WITH TAKING A PICTURE!");
-            }
-            finally {
-                webcam.close();
-            }
-
-        });
-
-
-        //Creating the Style Transfer with the image
-        btnStyle.setOnAction(e->{
-            try{
-                new NeuralStyleTransfer().transferStyle(image);
-            }
-            catch (IOException ex){
-                System.out.println("ERROR WITH STYLE TRANSFERING");
-            }
+            };
+            //If the task Failed gives a log error
+            task.setOnFailed(ex->{
+                Throwable exception = ex.getSource().getException();
+                if (exception != null){
+                    Log.error(exception);
+                }
+            });
+            new Thread(task).start();
 
         });
+
 
 
         /** ------- -For the Menu of the program ----------------- */
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    menuItemOpen.setOnAction(e -> {
+                        FileChooser fileChooser = new FileChooser();
+                        File selectedFile = fileChooser.showOpenDialog(primaryStage);
 
-        menuItemOpen.setOnAction(e->{
-            FileChooser fileChooser = new FileChooser();
-            File selectedFile = fileChooser.showOpenDialog(primaryStage);
-            System.out.println(selectedFile.getPath());
-            ImageView imageView = new ImageView(selectedFile.getPath());
-            borderPane.setCenter(imageView);
+                        if (selectedFile != null) {
+                            Image image1 = new Image(selectedFile.toURI().toString());
+                            ImageView imageView = new ImageView(image1);
+                            imageView.setFitWidth(400);
+                            imageView.setFitHeight(400);
+                            borderPane.setCenter(imageView);
+                        }
+                    });
+
+                    menuItemExit.setOnAction(e -> {
+                        //Maybe change this to the beginning of the program
+                        Platform.exit();
+                    });
+                }
+                catch (Exception ex){
+                }
+            }
+        }).start();
+
+
+        /** ------- -For the button style of the program ----------------- */
+        btnStyle.setOnAction(e -> {
+            //Allows the user to continue using the UI when heavy Computation is happening
+            Task<Void> task = new Task<Void>() {
+                @Override
+                protected Void call() throws Exception {
+                    new NeuralStyleTransfer().transferStyle(image);
+                    return null;
+                }
+            };
+            task.setOnFailed(ex->{
+                Throwable exception = ex.getSource().getException();
+                if (exception != null){
+                    Log.error(exception);
+                }
+            });
+
+            new Thread(task).start();
         });
 
-        menuItemExit.setOnAction(e->{
-            //Maybe change this to the beginning of the program
-            Platform.exit();
-        });
+
 
 
 
         primaryStage.setTitle("StyleTransfer");
-        Scene scene = new Scene(borderPane, 600 , 400);
+        Scene scene = new Scene(borderPane, 1000 , 600);
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -231,7 +289,7 @@ public class NeuralStyleTransfer extends Application{
         Map<String, INDArray> activationsStyleMap = vgg16FineTune.feedForward(style, true);
         HashMap<String, INDArray> activationsStyleGramMap = buildStyleGramValues(activationsStyleMap);
         AdamUpdater adamUpdater = createADAMUpdater();
-        for (int iteration = 0; iteration < ITERATIONS; iteration++) {
+        for (int iteration = 0; iteration < 11; iteration++) {
             log.info("iteration  " + iteration);
 
             INDArray[] input = new INDArray[] { combination };
@@ -247,6 +305,7 @@ public class NeuralStyleTransfer extends Application{
             if (iteration % SAVE_IMAGE_CHECKPOINT == 0) {
                 //save image can be found at target/classes/styletransfer/out
                 saveImage(combination.dup(), iteration);
+
             }
         }
 
@@ -502,12 +561,15 @@ public class NeuralStyleTransfer extends Application{
     }
 
     private void saveImage(INDArray combination, int iteration) throws IOException {
-        IMAGE_PRE_PROCESSOR.revertFeatures(combination);
 
+        Thread writeImgThread = new Thread();
+        IMAGE_PRE_PROCESSOR.revertFeatures(combination);
         BufferedImage output = imageFromINDArray(combination);
         URL resource = getClass().getResource(OUTPUT_PATH);
-        File file = new File( "D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\styletransfer\\" + "iteration" + iteration + ".jpg");
+
+        File file = new File("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\styletransfer\\" + "iteration" + iteration + ".jpg");
         ImageIO.write(output, "jpg", file);
+
     }
 
     /**
