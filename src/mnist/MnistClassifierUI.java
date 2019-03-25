@@ -1,4 +1,4 @@
-package mnist;
+package org.deeplearning4j.examples.convolution.mnist;
 
 import java.awt.Graphics;
 import java.awt.Image;
@@ -65,6 +65,7 @@ public class MnistClassifierUI extends Application {
   private MultiLayerNetwork net; // trained modelprivate static DecimalFormat df2 = new DecimalFormat(".##");
   //private ComputationGraph graph;
 
+
   public MnistClassifierUI() throws Exception {
 
     String fullModel = new ClassPathResource("test_mnist_old.h5").getFile().getPath();
@@ -89,6 +90,7 @@ public class MnistClassifierUI extends Application {
     imgView.setFitWidth(100);
     ctx.setLineWidth(10);
     ctx.setLineCap(StrokeLineCap.SQUARE);
+    Label instructions = new Label("Draw a digit and hit enter, then right click to clear");
     Label lblResult = new Label();
 
     Label lbl[] = {new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label()};
@@ -107,17 +109,17 @@ public class MnistClassifierUI extends Application {
 
     HBox hbBottom = new HBox(10, imgView, lblResult);
     hbBottom.setAlignment(Pos.CENTER);
-    VBox root = new VBox(20,but, canvas, hbBottom, preds);
+    VBox root = new VBox(20,instructions,but, canvas, hbBottom, preds);
     root.setAlignment(Pos.CENTER);
 
     Scene scene = new Scene(root, 600, 600);
     stage.setScene(scene);
-    stage.setTitle("Draw a digit and hit enter (right-click to clear)");
+    stage.setTitle("Hand written digit recognizer");
     stage.setResizable(false);
     stage.show();
 
     btback.setOnMouseClicked(e -> {
-        System.out.println("go back son");
+        stage.hide();
     });
 
     canvas.setOnMousePressed(e -> {
