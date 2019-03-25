@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.layout.GridPane;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.api.OptimizationAlgorithm;
 import org.deeplearning4j.nn.conf.layers.DenseLayer;
@@ -90,18 +92,22 @@ public class MnistClassifierUI extends Application {
     Label lblResult = new Label();
 
     Label lbl[] = {new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label()};
-    HBox preds = new HBox(19);
-    preds.getChildren().addAll(lbl[0], lbl[1], lbl[2], lbl[3], lbl[4], lbl[5], lbl[6], lbl[7], lbl[8], lbl[9]);
+    GridPane preds = new GridPane();
+    preds.setHgap(10);
+    preds.setVgap(10);
+    preds.setPadding(new Insets(10,10,10,10));
     preds.setAlignment(Pos.CENTER);
 
     Label num[] = {new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label()};
-    HBox nums = new HBox(25.5);
-    nums.setAlignment(Pos.CENTER);
-    nums.getChildren().addAll(num[0], num[1], num[2], num[3], num[4], num[5], num[6], num[7], num[8], num[9]);
+
+    for(int i =0; i < 10; i++){
+        preds.add(lbl[i],i,0);
+        preds.add(num[i],i,1);
+      }
 
     HBox hbBottom = new HBox(10, imgView, lblResult);
     hbBottom.setAlignment(Pos.CENTER);
-    VBox root = new VBox(20,but, canvas, hbBottom, preds, nums);
+    VBox root = new VBox(20,but, canvas, hbBottom, preds);
     root.setAlignment(Pos.CENTER);
 
     Scene scene = new Scene(root, 600, 600);
@@ -176,7 +182,7 @@ public class MnistClassifierUI extends Application {
         String likli = Double.toString(liklihood);
         preds[i].setText(likli);
 
-        nums[i].setText(Double.toString(i));
+        nums[i].setText(Integer.toString(i));
 
     }
   }
