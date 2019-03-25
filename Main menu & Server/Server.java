@@ -14,9 +14,8 @@ import javafx.scene.text.*;
 public class Server extends Application {
 
     private TextArea text = new TextArea();
-    private Text text_status;
     private VBox vbox = new VBox();
-    private ArrayList<Text> holder= new ArrayList<>();
+    private ArrayList<Text> holder= new ArrayList<>(); //holding the text boxes
 
     int connection = 0;
 
@@ -25,25 +24,25 @@ public class Server extends Application {
 
         vbox.getChildren().add(text);
         Scene scene = new Scene(vbox);
-        primaryStage.setTitle("Server");
+        primaryStage.setTitle("Server"); //creating a basic ui to interpret the server data
         primaryStage.setScene(scene);
         primaryStage.show();
 
         new Thread( () -> {
             try {
-                ServerSocket serverSocket = new ServerSocket(8000);
+                ServerSocket serverSocket = new ServerSocket(8000); //creating the server socket
 
                 text.appendText("server has begun running");
 
                 while (true) {
-                    Socket socket = serverSocket.accept();
+                    Socket socket = serverSocket.accept(); //waiting for uer to connect
 
                     connection++;
 
                     Platform.runLater( () -> {
                         try {
                             DataOutputStream send_to_client = new DataOutputStream(socket.getOutputStream());
-                            send_to_client.writeInt(connection);
+                            send_to_client.writeInt(connection); //giving the user an ID
                         }
                         catch(IOException xe){
                             xe.printStackTrace();
@@ -53,7 +52,7 @@ public class Server extends Application {
 
                         text.appendText("Client#: " + connection + "\n" + "Client ip: "+inetAddress.getHostAddress() + '\n');
                         holder.add(new Text());
-                        vbox.getChildren().addAll(holder.get(connection-1));
+                        vbox.getChildren().addAll(holder.get(connection-1)); //adding to the stage
                     });
 
                     new Thread(new HandleAClient(socket)).start();
@@ -79,17 +78,24 @@ public class Server extends Application {
                 holder.get(connection-1).setText("user number "+connection+" is at main menu");
                 while (true) {
 
-                    int a = inputFromClient.readInt();
+                    int a = inputFromClient.readInt(); //reading info from the client. use info to print proper menu
                     int num = inputFromClient.readInt();
                     Platform.runLater(() -> {
                         if (a == 0){
-                            holder.get(num-1).setText("user number "+num+" is at main menu");
+                            holder.get(num-1).setText("User number "+num+" is at main menu");
                         }
                         else if (a == 1){
-                            holder.get(num-1).setText("user number "+num+" is in insta sim");
+                            holder.get(num-1).setText("User number "+num+" is in Style Transfer");
                         }
                         else if (a == 2){
-                            holder.get(num-1).setText("user number "+num+" is in number reader");
+                            holder.get(num-1).setText("User number "+num+" is in Cat & Dog");
+                        }
+                        else if (a == 3){
+                            holder.get(num-1).setText("User number "+num+" is in Digit Recognizer");
+                        }
+                        else if (a == 4){
+                            holder.get(num-1).setText("User number "+num+" has gone offline");
+
                         }
                     });
                 }

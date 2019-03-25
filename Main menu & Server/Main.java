@@ -26,6 +26,7 @@ public class Main extends Application {
     private Text title;
     private Button program_1;
     private Button program_2;
+    private Button program_3;
     private Button exit_btn;
     private DataOutputStream toServer = null;
     private DataInputStream fromServer = null;
@@ -52,24 +53,25 @@ public class Main extends Application {
 
         vbox.getChildren().add(title);
 
-        program_1 = new Button("insta simulator"); //creating the button object
-        program_2 = new Button("writing reader");
+        program_1 = new Button("Style Transfer"); //creating the button object
+        program_2 = new Button("Cat & Dog");
+        program_3 = new Button("Digit Recognizer");
         exit_btn = new Button("Exit");
         program_1.setPrefWidth(200);
         program_2.setPrefWidth(200);
+        program_3.setPrefWidth(200);
         exit_btn.setPrefWidth(200);
         program_1.setMinWidth(200);
         program_2.setMinWidth(200);
+        program_3.setMinWidth(200);
         exit_btn.setMinWidth(200);
         program_1.setDefaultButton(true);
         program_2.setDefaultButton(true);
+        program_3.setDefaultButton(true);
         exit_btn.setDefaultButton(true);
-        vbox.getChildren().addAll(program_1, program_2, exit_btn);
+        vbox.getChildren().addAll(program_1, program_2, program_3, exit_btn);
         vbox.setAlignment(Pos.CENTER);
 
-        exit_btn.setOnAction(e ->{//reading when the button is pressed
-            Platform.exit();
-        });
 
         VBox vbox2 = new VBox();
         vbox2.setPadding(new Insets(85,0,0,0));
@@ -90,21 +92,31 @@ public class Main extends Application {
         vbox2.getChildren().add(test);
 
         Image image1 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\scaled.png"));
-        Image image2 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\scaled2.png"));
+        Image image2 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\catndogscaled.png"));
+        Image image3 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\scaled2.png"));
         ImageView imageview1 = new ImageView(image1);
         ImageView imageview2 = new ImageView(image2);
+        ImageView imageview3 = new ImageView(image3);
         EventHandler<MouseEvent> eventHandler1 = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                test.setText("Preview for Image Filter");
+                test.setText("Preview for Style Transfer");
                 vbox2.getChildren().add(imageview1);
             }
         };
         EventHandler<MouseEvent> eventHandler2 = new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent e) {
-                test.setText("Preview for Written Text Reader");
+                test.setText("Preview for Cat & Dog");
                 vbox2.getChildren().add(imageview2);
+
+            }
+        };
+        EventHandler<MouseEvent> eventHandler3 = new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent e) {
+                test.setText("Preview for Digit Recognizer");
+                vbox2.getChildren().add(imageview3);
 
             }
         };
@@ -129,6 +141,8 @@ public class Main extends Application {
         program_1.addEventFilter(MouseEvent.MOUSE_EXITED, eventHandlerClear);
         program_2.addEventFilter(MouseEvent.MOUSE_ENTERED, eventHandler2);
         program_2.addEventFilter(MouseEvent.MOUSE_EXITED, eventHandlerClear);
+        program_3.addEventFilter(MouseEvent.MOUSE_ENTERED, eventHandler3);
+        program_3.addEventFilter(MouseEvent.MOUSE_EXITED, eventHandlerClear);
 
         hbox.setSpacing(50);
         hbox.getChildren().addAll(vbox, vbox2);
@@ -152,6 +166,14 @@ public class Main extends Application {
         pane.getChildren().addAll(btn_back2, text_reader);
         Scene scene3 = new Scene(pane, 800, 450);
 
+        Button btn_back3 = new Button("Back");
+        btn_back3.setDefaultButton(true);
+
+        Pane pane2 = new Pane();
+        Text digit = new Text(380, 220, "put ur stuff here Harry!");
+        pane2.getChildren().addAll(btn_back3, digit);
+        Scene scene4 = new Scene(pane2, 800, 450);
+
         try {
             Socket socket = new Socket("localhost", 8000);
             toServer = new DataOutputStream(socket.getOutputStream());
@@ -164,7 +186,7 @@ public class Main extends Application {
                     primaryStage.setScene(scene1);
                 }
                 catch (IOException ex){
-                    ex.printStackTrace();;
+                    ex.printStackTrace();
                 }
             });
 
@@ -176,7 +198,18 @@ public class Main extends Application {
                     primaryStage.setScene(scene1);
                 }
                 catch (IOException ex){
-                    ex.printStackTrace();;
+                    ex.printStackTrace();
+                }
+            });
+
+            btn_back3.setOnAction(a ->{//reading when the button is pressed
+                try {
+                    toServer.writeInt(0);
+                    toServer.writeInt(usernum);
+                    primaryStage.setScene(scene1);
+                }
+                catch (IOException ex){
+                    ex.printStackTrace();
                 }
             });
 
@@ -202,7 +235,28 @@ public class Main extends Application {
                     ex.printStackTrace();
                 }
             });
-
+            program_3.setOnAction(e ->{//reading when the button is pressed
+                try {
+                    toServer.writeInt(3);
+                    toServer.writeInt(usernum);
+                    primaryStage.setScene(scene4);
+                    primaryStage.show();
+                }
+                catch (IOException ex){
+                    ex.printStackTrace();
+                }
+            });
+            exit_btn.setOnAction(e ->{//reading when the button is pressed
+                try {
+                    toServer.writeInt(4);
+                    toServer.writeInt(usernum);
+                    Platform.exit();
+                }
+                catch (IOException ex){
+                    ex.printStackTrace();
+                }
+                Platform.exit();
+            });
         }
         catch (IOException e){
             e.printStackTrace();
