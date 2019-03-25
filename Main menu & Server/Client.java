@@ -1,4 +1,4 @@
-package sample;
+package org.deeplearning4j.examples;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -12,16 +12,20 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.scene.text.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import org.deeplearning4j.examples.convolution.mnist.HotdogNotHotdog;
+import org.deeplearning4j.examples.styletransfer.NeuralStyleTransfer;
+
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.*;
 import java.net.*;
 
-public class Main extends Application {
+public class Client extends Application {
 
     private Text title;
     private Button program_1;
@@ -38,7 +42,7 @@ public class Main extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage)throws FileNotFoundException {
+    public void start(Stage primaryStage)throws Exception {
         primaryStage.setTitle("Intro to Computer Vision (CSCI 2020)");
 
         HBox hbox = new HBox();
@@ -91,9 +95,9 @@ public class Main extends Application {
         vbox2.setSpacing(20);
         vbox2.getChildren().add(test);
 
-        Image image1 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\scaled.png"));
-        Image image2 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\catndogscaled.png"));
-        Image image3 = new Image(new FileInputStream("C:\\Users\\Tommy\\Pictures\\scaled2.png"));
+        Image image1 = new Image(new FileInputStream("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\scaled.png"));
+        Image image2 = new Image(new FileInputStream("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\catndogscaled.png"));
+        Image image3 = new Image(new FileInputStream("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\scaled2.png"));
         ImageView imageview1 = new ImageView(image1);
         ImageView imageview2 = new ImageView(image2);
         ImageView imageview3 = new ImageView(image3);
@@ -147,6 +151,7 @@ public class Main extends Application {
         hbox.setSpacing(50);
         hbox.getChildren().addAll(vbox, vbox2);
         Scene scene1 = new Scene(hbox, 800, 450);
+        scene1.getStylesheets().add("HotdogNotHotdog.css");
         primaryStage.setScene(scene1);
         primaryStage.show();
 
@@ -173,6 +178,9 @@ public class Main extends Application {
         Text digit = new Text(380, 220, "put ur stuff here Harry!");
         pane2.getChildren().addAll(btn_back3, digit);
         Scene scene4 = new Scene(pane2, 800, 450);
+
+
+
 
         try {
             Socket socket = new Socket("localhost", 8000);
@@ -217,10 +225,23 @@ public class Main extends Application {
                 try {
                     toServer.writeInt(1);
                     toServer.writeInt(usernum);
-                    primaryStage.setScene(scene2);
-                    primaryStage.show();
+                    Stage menuStage = new Stage();
+                    menuStage.initModality(Modality.WINDOW_MODAL);
+                    menuStage.initOwner(primaryStage);
+                    NeuralStyleTransfer neuralMenu = new NeuralStyleTransfer();
+                    neuralMenu.start(menuStage);
+                    menuStage.setOnHidden(a -> {
+                        try {
+                            toServer.writeInt(0);
+                            toServer.writeInt(usernum);
+                            primaryStage.setScene(scene1);
+                        } catch (IOException ex) {
+
+                        }
+                    });
+
                 }
-                catch (IOException ex){
+                catch (Exception ex){
                     ex.printStackTrace();
                 }
             });
