@@ -42,8 +42,10 @@ Pressing the Capture! button will capture a webcam image. Pressing Stylize! will
 
 
 ## Server
+- Tracks people in cliend
 
 ## Client
+- provides main menu (run server then client)
 
 
 
