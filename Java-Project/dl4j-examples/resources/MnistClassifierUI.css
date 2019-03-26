@@ -1,0 +1,48 @@
+/*
+This is the styling for the javafx application for style Transfering
+
+*/
+
+
+/* For the background */
+.root{
+    -fx-background-color: #41aaa8;
+}
+
+/* For the Buttons */
+.button {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-color: #105e62;
+    -fx-text-fill: #ff96a0;
+    -fx-background-radius: 20;
+
+    -fx-border-color: #ff96a0;
+    -fx-border-insets: -1;
+    -fx-border-width: 3;
+    -fx-border-radius: 20;
+}
+
+.button:hover{
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-color: #ff96a0;
+    -fx-text-fill: #105e62;
+    -fx-background-radius: 20;
+
+    -fx-border-color: #105e62;
+    -fx-border-insets: -1;
+    -fx-border-width: 3;
+    -fx-border-radius: 20;
+
+}
+
+.lbl-primary{
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-background-color: #ff96a0;
+    -fx-text-fill: #105e62;
+    -fx-background-radius: 20;
+
+}
+
