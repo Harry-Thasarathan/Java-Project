@@ -24,7 +24,7 @@ $ git clone https://github.com/Harry-Thasarathan/Java-Project.git
 $ cd Java-Project
 $ mvn clean install
 ```
-- Open the project in IntelliJ and run the server and then the client files from IntelliJ, this will show the main menu from there you can view the rest of the demos
+- Open the project in IntelliJ, navigate to the Java-Project folder (stuff outside gives us git errors to remove), that is where the working code is and run the server and then the client files from IntelliJ, this will show the main menu from there you can view the rest of the demos
 
 ## Hand Written Digit Recognizer:
 ![Image description](https://github.com/Harry-Thasarathan/Java-Project/blob/master/resources/digits.png)
