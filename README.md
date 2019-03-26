@@ -1,6 +1,4 @@
-README
-
-##CSCI 2020u Final Project - Computer Vision Deep Learning Demo
+## CSCI 2020u Final Project - Computer Vision Deep Learning Demo
 by Tamilselvan Balasuntharam, Harrish Thasarathan, Tommy Turcotte and Spencer Denford
 
 ### Introduction:
