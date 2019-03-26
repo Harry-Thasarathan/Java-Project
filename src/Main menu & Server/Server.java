@@ -1,4 +1,4 @@
-package sample;
+package org.deeplearning4j.examples;
 
 import java.io.*;
 import java.net.*;
@@ -73,7 +73,7 @@ public class Server extends Application {
 
         public void run() {
             try {
-
+                System.out.println("hi");
                 DataInputStream inputFromClient = new DataInputStream(socket.getInputStream());
                 holder.get(connection-1).setText("user number "+connection+" is at main menu");
                 while (true) {

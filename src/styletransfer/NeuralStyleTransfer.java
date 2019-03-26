@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.datavec.api.util.ClassPathResource;
@@ -52,6 +53,9 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ScrollPane;
+
+//Bootstrap fx
+import org.kordamp.bootstrapfx.scene.layout.Panel;
 
 
 /**
@@ -140,13 +144,15 @@ public class NeuralStyleTransfer extends Application{
         /**BUTTON CREATION SECTION*/
         //Creating a button to capture a
         Button btncapture = new Button("Capture!");
+        //btncapture.getStyleClass().setAll("btn-lg");
         Button btnStyle = new Button("Style!");
+        //btnStyle.getStyleClass().setAll("btn-lg");
 
         //Adding Button to the button pane
         buttonPane.getChildren().add(btncapture);
         buttonPane.getChildren().add(btnStyle);
 
-        //Adding padding to the buttonPane
+        //Adding padding to the buttonPanev
         buttonPane.setHgap(60);
         buttonPane.setVgap(30);
         buttonPane.translateXProperty().setValue(137.5);
@@ -181,7 +187,11 @@ public class NeuralStyleTransfer extends Application{
         textPane.add(new ScrollPane(textArea), 0, 0 );
         textArea.setPrefRowCount(20);
         textArea.setPrefColumnCount(15);
+        //Butting hte text area in the left
         borderPane.setLeft(textArea);
+
+        //Creating a Label
+
 
         /** ------- -For the button capture of the program ----------------- */
 
@@ -194,9 +204,13 @@ public class NeuralStyleTransfer extends Application{
                     Webcam webcam = Webcam.getDefault();
                     webcam.open();
                     image = webcam.getImage();
+
+
                     //Writing the image
                     ImageIO.write(image, "JPG", new File("imageTEST.png"));
                     webcam.close();
+
+
                     return null;
                 }
 
@@ -217,8 +231,8 @@ public class NeuralStyleTransfer extends Application{
         /** ------- -For the Menu of the program ----------------- */
         menuItemNew.setOnAction(e->{
             image = null;
-            Image image1 = null;
-            ImageView imageView = new ImageView(image1);
+            Image imageDisplay = null;
+            ImageView imageView = new ImageView(imageDisplay);
             borderPane.setCenter(imageView);
             textArea.appendText("Started a new file");
 
@@ -244,7 +258,7 @@ public class NeuralStyleTransfer extends Application{
                             //Outputting image
                             ImageView imageView = new ImageView(image1);
                             System.out.println();
-                            imageView.setFitWidth(400);
+                            imageView.setFitWidth(600);
                             imageView.setFitHeight(400);
                             borderPane.setCenter(imageView);
                         }
@@ -252,7 +266,9 @@ public class NeuralStyleTransfer extends Application{
 
                     menuItemExit.setOnAction(e -> {
                         //Maybe change this to the beginning of the program
-                        Platform.exit();
+                        primaryStage.hide();
+
+                        //Platform.exit();
                     });
                 }
                 catch (Exception ex){
@@ -289,6 +305,7 @@ public class NeuralStyleTransfer extends Application{
         Scene scene = new Scene(borderPane, 1000 , 600);
 
         //Adding a style sheet for program
+        scene.getStylesheets().add("org/kordamp/bootstrapfx/bootstrapfx.css");
         scene.getStylesheets().add("NeuralStyleTransfer.css");
 
         primaryStage.setScene(scene);
@@ -313,7 +330,6 @@ public class NeuralStyleTransfer extends Application{
         AdamUpdater adamUpdater = createADAMUpdater();
         for (int iteration = 0; iteration < 11; iteration++) {
             log.info("iteration  " + iteration);
-
             INDArray[] input = new INDArray[] { combination };
             Map<String, INDArray> activationsCombMap = vgg16FineTune.feedForward(input, true, false);
 
@@ -591,7 +607,6 @@ public class NeuralStyleTransfer extends Application{
 
         File file = new File("D:\\Tamilesh\\Documents\\Year 2\\Semester 2\\SoftwareInt\\Final Project\\DL4J\\dl4j-examples\\dl4j-examples\\src\\main\\resources\\styletransfer\\" + "iteration" + iteration + ".jpg");
         ImageIO.write(output, "jpg", file);
-
     }
 
     /**

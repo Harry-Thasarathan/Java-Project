@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.layout.GridPane;
@@ -91,6 +92,7 @@ public class MnistClassifierUI extends Application {
     ctx.setLineWidth(10);
     ctx.setLineCap(StrokeLineCap.SQUARE);
     Label instructions = new Label("Draw a digit and hit enter, then right click to clear");
+    instructions.getStyleClass().setAll("lbl-primary");
     Label lblResult = new Label();
 
     Label lbl[] = {new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label(), new Label()};
@@ -114,6 +116,8 @@ public class MnistClassifierUI extends Application {
 
     Scene scene = new Scene(root, 600, 600);
     stage.setScene(scene);
+    scene.getStylesheets().add("org/kordamp/bootstrapfx/bootstrapfx.css");
+    scene.getStylesheets().add("MnistClassifierUI.css");
     stage.setTitle("Hand written digit recognizer");
     stage.setResizable(false);
     stage.show();

@@ -1,4 +1,4 @@
-package mnist;
+package org.deeplearning4j.examples.convolution.mnist;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -113,7 +113,7 @@ public class HotdogNotHotdog extends Application {
 
         menuItemExit.setOnAction(e->{
             //Change this later to the main menu
-            Platform.exit();
+            primaryStage.hide();
 
         });
 
@@ -136,10 +136,10 @@ public class HotdogNotHotdog extends Application {
 
 
                     if (output.maxNumber().doubleValue() >= 0.5){
-                        textArea.appendText("It's a CAT!");
+                        textArea.appendText("It's a CAT! \n");
                     }
                     else{
-                        textArea.appendText("It's a DOG!");
+                        textArea.appendText("It's a DOG! \n");
                     }
 
                     return null;
