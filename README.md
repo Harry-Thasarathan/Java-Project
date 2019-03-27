@@ -1,5 +1,6 @@
 ## CSCI 2020u Final Project - Computer Vision Deep Learning Demo
 by Tamilselvan Balasuntharam, Harrish Thasarathan, Tommy Turcotte and Spencer Denford
+https://github.com/Harry-Thasarathan/Java-Project.git
 
 ### Introduction:
 Here we present our final project for csci2020u, a computer vision and deep learning application with 3 interactive demonstrations. These include a hand written (single) digit recognizer, where the user can draw a number and our trained neural network will recognize it. A binary cat vs dog classifier, where the user can feed an image of a dog or cat and have a neural network determine which animal it is. As well as a Style Transfer demonstration where the user can take a webcam picture of themselves and have the style of the photo changed (similar to instagram filters).
@@ -46,6 +47,25 @@ Pressing the Capture! button will capture a webcam image. Pressing Stylize! will
 
 ## Client
 - provides main menu (run server then client)
+
+## Contributions 
+Harry 
+- Hand Written Digits Demo (AlexNet network trained in python in google colab free tesla k80 GPU on Mnist dataset)
+- Readme
+- Cat vs Dog network trained in Python (CNN also google colab)
+
+Tamilesh 
+- UI for cats vs dog prediction 
+- Style Transfer Algorithm Modifications
+- Style Transfer UI 
+
+Spencer Denford
+- Color extraction (ended up not using in demo for space)
+- Readme
+
+Tommy Turcotte
+- Server functionality 
+- Client functionality 
 
 
 
